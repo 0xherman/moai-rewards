@@ -119,11 +119,11 @@
 			console.log("Connecting via web3");
 			try {
 				const web3 = new window.Web3(window.ethereum);
-				const chainId = await web3.eth.getChainId();
+				
 				web3.currentProvider.on("disconnect", function () {
 					disconnectAccount();
 				});
-
+				chainId = await web3.eth.getChainId();
 				if (chainId !== 56 && chainId !== 97 && chainId !== 1337) {
 					window.ethereum.request({
 						method: 'wallet_addEthereumChain',
@@ -157,7 +157,7 @@
 	}
 
 	async function loadData() {
-		if (canConnect && account && chainId) {
+		if (canConnect && account) {
 			try {
 				const web3 = new window.Web3(window.ethereum);
 				const trackerContract = new web3.eth.Contract(trackerABI, trackerContractAddress);
@@ -189,8 +189,10 @@
 	}
 
 	async function claim() {
-		if (canConnect && account && chainId) {
+		if (canConnect && account) {
 			try {
+				$("#withdraw").hide();
+				$("#withdrawing").show();
 				const web3 = new window.Web3(window.ethereum);
 
 				const tokenContract = new web3.eth.Contract(tokenABI, tokenContractAddress);
@@ -198,9 +200,12 @@
 				tokenContract.methods.claim().send({
 					from: account
 				}).on("receipt", (e) => {
-					alert("Withdrawn");
+					$("#withdraw").show();
+					$("#withdrawing").hide();
 				});
 			} catch (err) {
+				$("#withdraw").show();
+				$("#withdrawing").hide();
 				console.log(err);
 			}
 		}
@@ -209,8 +214,16 @@
 
 	async function disconnectAccount() {
 		console.log("disconnected");
+		account = "";
+		chainId = null;
 		localStorage.removeItem("account");
 		localStorage.removeItem("chainId");
 		$("#connectBtn").show();
+		$("#moai").text(0);
+		$("#bnb").text(0);
+		$("#paid").text(0);
+		$("#address").text("");
+		$("#pending").text(0);
+		$("#lastPaid").text("");
 	}
 })();
