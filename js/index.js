@@ -199,7 +199,7 @@
 
 				tokenContract.methods.claim().send({
 					from: account
-				}).on("receipt", (e) => {
+				}, function() {
 					$("#withdraw").show();
 					$("#withdrawing").hide();
 				});
